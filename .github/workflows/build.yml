@@ -14,10 +14,8 @@ jobs:
     strategy:
       matrix:
         kernel_version:  # 定义多个内核版本
-          - dir: "v4.x"
-            version: "linux-4.19.91.tar.gz"
-          - dir: "v5.x"
-            version: "linux-5.10.134.tar.gz"  # 示例：添加更多版本
+          - "v4.x/linux-4.19.91.tar.gz"
+          - "v5.x/linux-5.10.134.tar.gz"  # 示例：添加更多版本
 
     steps:
     - name: Checkout repository
