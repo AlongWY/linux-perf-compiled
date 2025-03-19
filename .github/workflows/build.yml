@@ -10,15 +10,19 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 环境
     strategy:
       matrix:
-        kernel_version:
-          - "v4.x/linux-4.19.91.tar.gz"
-          - "v5.x/linux-5.10.134.tar.gz"
+        kernel_version:  # 定义多个内核版本
+          - dir: "v4.x"
+            version: "linux-4.19.91.tar.gz"
+          - dir: "v5.x"
+            version: "linux-5.10.134.tar.gz"  # 示例：添加更多版本
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4  # 检出代码
+
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -26,17 +30,18 @@ jobs:
 
     - name: Download and extract Linux kernel
       run: |
-        wget https://mirrors.edge.kernel.org/pub/linux/kernel/${{ matrix.kernel_version }}
+        wget https://mirrors.edge.kernel.org/pub/linux/kernel/$(dirname ${{ matrix.kernel_version }})/$(basename ${{ matrix.kernel_version }})
         tar -xzf $(basename ${{ matrix.kernel_version }})  # 解压下载的内核源码
         mv $(basename ${{ matrix.kernel_version }} .tar.gz) linux-kernel  # 重命名解压后的目录
 
-    - name: Build linux-perf (Dynamic)
+    - name: Build linux-perf (Static)
       run: |
         cd linux-kernel/tools/perf  # 进入内核源码中的 perf 目录
-        make  # 动态编译 perf
+        make LDFLAGS=-static  # 静态编译 perf
+        strip perf  # 可选：去除调试信息，减小文件大小
 
-    - name: Archive build artifacts
+    - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: linux-perf-${{ matrix.kernel_version | replace('/', '-') }}  # 动态生成归档文件名
+        name: linux-perf-$(basename ${{ matrix.kernel_version }} .tar.gz)  # 归档文件名
         path: linux-kernel/tools/perf/perf  # 归档生成的 perf 可执行文件
