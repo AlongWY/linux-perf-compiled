@@ -1,0 +1,42 @@
+name: Build linux-perf (Dynamic with Kernel Matrix)
+
+on:
+  push:
+    branches:
+      - main  # 只在 main 分支上触发
+  pull_request:
+    branches:
+      - main  # 在 main 分支的 pull request 上触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        kernel_version:
+          - "v4.x/linux-4.19.91.tar.gz"
+          - "v5.x/linux-5.10.134.tar.gz"
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y make gcc libelf-dev libdw-dev libunwind-dev libslang2-dev libaudit-dev libiberty-dev libnuma-dev libperl-dev python-dev binutils-dev libbfd-dev libssl-dev
+
+    - name: Download and extract Linux kernel
+      run: |
+        wget https://mirrors.edge.kernel.org/pub/linux/kernel/${{ matrix.kernel_version }}
+        tar -xzf $(basename ${{ matrix.kernel_version }})  # 解压下载的内核源码
+        mv $(basename ${{ matrix.kernel_version }} .tar.gz) linux-kernel  # 重命名解压后的目录
+
+    - name: Build linux-perf (Dynamic)
+      run: |
+        cd linux-kernel/tools/perf  # 进入内核源码中的 perf 目录
+        make  # 动态编译 perf
+
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-perf-${{ matrix.kernel_version | replace('/', '-') }}  # 动态生成归档文件名
+        path: linux-kernel/tools/perf/perf  # 归档生成的 perf 可执行文件
