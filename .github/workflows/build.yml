@@ -24,7 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y make gcc libelf-dev libdw-dev libunwind-dev libslang2-dev libaudit-dev libiberty-dev libnuma-dev libperl-dev python-dev binutils-dev libbfd-dev libssl-dev
+        sudo apt-get install -y make gcc libelf-dev libdw-dev libunwind-dev libslang2-dev libaudit-dev libiberty-dev libnuma-dev libperl-dev binutils-dev libbfd-dev libssl-dev
 
     - name: Download and extract Linux kernel
       run: |
