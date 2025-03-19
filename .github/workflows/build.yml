@@ -39,7 +39,7 @@ jobs:
         strip perf  # 可选：去除调试信息，减小文件大小
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: linux-perf-$(basename ${{ matrix.kernel_version }} .tar.gz)  # 归档文件名
         path: linux-kernel/tools/perf/perf  # 归档生成的 perf 可执行文件
